@@ -1,0 +1,27 @@
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/taskListFragment">
+
+
+    <fragment
+        android:id="@+id/taskListFragment"
+        android:name="com.example.group_assignment.TaskListFragment"
+        android:label="Task List">
+        <action
+            android:id="@+id/action_taskListFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/taskFormFragment"
+        android:name="com.example.group_assignment.TaskFormFragment"
+        android:label="New Task" />
+
+
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.group_assignment.SettingsFragment"
+        android:label="Settings" />
+</navigation>

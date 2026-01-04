@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_sort"
+        android:title="Sort"
+        app:showAsAction="ifRoom">
+        <menu>
+            <item android:id="@+id/sort_title" android:title="By Title" />
+            <item android:id="@+id/sort_due" android:title="By Due Date" />
+            <item android:id="@+id/sort_done" android:title="By Status" />
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/action_settings"
+        android:title="Settings"
+        android:icon="@android:drawable/ic_menu_preferences"
+        app:showAsAction="ifRoom" />
+</menu>
