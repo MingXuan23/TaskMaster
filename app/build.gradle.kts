@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("com.google.devtools.ksp")
-    id("androidx.navigation.safeargs.kotlin")
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.navigation.safeargs)
 }
 
 android {
@@ -41,12 +41,14 @@ android {
 }
 
 dependencies {
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
-    implementation("androidx.fragment:fragment-ktx:1.6.1")
-    implementation("androidx.navigation:navigation-ui-ktx:2.7.6")
+    implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.androidx.fragment)
+    implementation(libs.androidx.navigation.ui)
 
-    ksp("androidx.room:room-compiler:2.8.4")
-// Use the latest version
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
