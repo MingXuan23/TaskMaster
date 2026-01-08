@@ -1,59 +1,114 @@
 package com.example.group_assignment
 
+import android.content.ContentValues
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
+import android.os.Environment
+import android.provider.MediaStore
 import android.view.View
-import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import com.example.group_assignment.databinding.FragmentSettingsBinding
+import com.example.group_assignment.viewmodel.TaskListViewModel
+import com.example.group_assignment.viewmodel.TaskListViewModelFactory
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
-/**
- * A simple [Fragment] subclass.
- * Use the [SettingsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class SettingsFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private var _binding: FragmentSettingsBinding? = null
+    private val binding get() = _binding!!
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+    private var currentTaskList: List<Any> = emptyList()
+
+    private val viewModel: TaskListViewModel by viewModels {
+        TaskListViewModelFactory(ServiceLocator.repo(requireContext()))
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        _binding = FragmentSettingsBinding.bind(view)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.tasks.collect { tasks ->
+                currentTaskList = tasks
+            }
+        }
+
+
+        binding.btnBackup.setOnClickListener {
+            if (currentTaskList.isNotEmpty()) {
+
+                exportTasksToPublicStorage(currentTaskList)
+            } else {
+
+                viewLifecycleOwner.lifecycleScope.launch {
+                    try {
+                        val taskList = viewModel.tasks.first()
+                        if (taskList.isNotEmpty()) {
+                            exportTasksToPublicStorage(taskList)
+                        } else {
+                            Toast.makeText(context, "No tasks available to backup.", Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings, container, false)
-    }
+    private fun exportTasksToPublicStorage(taskList: List<Any>) {
+        try {
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SettingsFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SettingsFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+            val gson = GsonBuilder().setPrettyPrinting().create()
+
+            val backupWrapper = mapOf(
+                "app_name" to "TaskMaster Pro",
+                "export_date" to SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(Date()),
+                "total_records" to taskList.size,
+                "data" to taskList
+            )
+
+            val jsonString = gson.toJson(backupWrapper)
+            val fileName = "TaskMaster_Backup_${System.currentTimeMillis()}.json"
+
+            val values = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, "application/json")
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
                 }
             }
+
+            val resolver = requireContext().contentResolver
+            val collection = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                MediaStore.Downloads.EXTERNAL_CONTENT_URI
+            } else {
+                MediaStore.Files.getContentUri("external")
+            }
+
+            val uri = resolver.insert(collection, values)
+            uri?.let {
+                resolver.openOutputStream(it)?.use { out ->
+                    out.write(jsonString.toByteArray())
+                }
+
+                Toast.makeText(context, "Backup Successful! Saved to Downloads", Toast.LENGTH_LONG).show()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
