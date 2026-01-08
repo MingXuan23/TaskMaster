@@ -1,5 +1,11 @@
 <resources>
-    <string name="app_name">group-assignment</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="app_name">MyApp</string>
+    <string name="hello_blank_fragment">Hello Fragment</string>
+
+    <!-- Your array -->
+    <string-array name="priority_array">
+        <item>Low</item>
+        <item>Medium</item>
+        <item>High</item>
+    </string-array>
 </resources>

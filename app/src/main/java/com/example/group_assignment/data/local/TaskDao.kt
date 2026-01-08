@@ -7,17 +7,25 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao {
-    @Query("SELECT * FROM tasks ORDER BY done ASC, priority DESC, dueAt ASC") // [cite: 485]
-    fun observeAll(): Flow<List<Task>> // [cite: 486]
+    @Query("SELECT * FROM tasks ORDER BY done ASC, priority DESC, dueAt ASC")
+    fun observeAll(): Flow<List<Task>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE) // [cite: 487, 488]
-    suspend fun upsert(task: Task): Long // [cite: 489]
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(task: Task): Long
 
     @Delete
-    suspend fun delete(task: Task) // [cite: 490]
+    suspend fun delete(task: Task) // optional if you want delete by object
 
-    @Query("UPDATE tasks SET done = :isDone WHERE id = :id") // [cite: 491]
-    suspend fun setDone(id: Long, isDone: Boolean) // [cite: 492]
+    @Query("DELETE FROM tasks WHERE id = :taskId")
+    suspend fun deleteById(taskId: Long) // <- required for repository
 
+    @Query("UPDATE tasks SET done = :isDone WHERE id = :id")
+    suspend fun setDone(id: Long, isDone: Boolean)
 
+    @Query("SELECT * FROM tasks WHERE id = :taskId LIMIT 1")
+    suspend fun getTaskById(taskId: Long): Task?
+
+    @Query("UPDATE tasks SET title = :title, priority = :priority, dueAt = :dueAt WHERE id = :taskId")
+    suspend fun updateTask(taskId: Long, title: String, priority: Int, dueAt: Long?)
 }
+

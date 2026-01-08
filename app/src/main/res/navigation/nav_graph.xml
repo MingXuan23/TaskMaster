@@ -1,9 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
     app:startDestination="@id/taskListFragment">
 
-
+    <!-- Task List -->
     <fragment
         android:id="@+id/taskListFragment"
         android:name="com.example.group_assignment.TaskListFragment"
@@ -11,15 +12,19 @@
         <action
             android:id="@+id/action_taskListFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_taskListFragment_to_taskFormFragment"
+            app:destination="@id/taskFormFragment" />
     </fragment>
 
+    <!-- Task Form -->
     <fragment
         android:id="@+id/taskFormFragment"
         android:name="com.example.group_assignment.TaskFormFragment"
-        android:label="New Task" />
+        android:label="New Task">
+    </fragment>
 
-
-
+    <!-- Settings -->
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.example.group_assignment.SettingsFragment"

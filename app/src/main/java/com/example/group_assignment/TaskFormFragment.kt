@@ -1,59 +1,79 @@
 package com.example.group_assignment
 
+import android.app.DatePickerDialog
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Spinner
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import com.example.group_assignment.viewmodel.TaskListViewModel
+import com.example.group_assignment.viewmodel.TaskListViewModelFactory
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+class TaskFormFragment : Fragment(R.layout.fragment_task_form) {
 
-/**
- * A simple [Fragment] subclass.
- * Use the [TaskFormFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class TaskFormFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private val viewModel: TaskListViewModel by viewModels {
+        TaskListViewModelFactory(ServiceLocator.repo(requireContext()))
+    }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+    private var selectedDueAt: Long? = null
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val etTitle = view.findViewById<EditText>(R.id.etTitle)
+        val spinnerPriority = view.findViewById<Spinner>(R.id.spinnerPriority)
+        val btnPickDate = view.findViewById<Button>(R.id.btnPickDate)
+        val tvDueDate = view.findViewById<TextView>(R.id.tvDueDate)
+        val btnSave = view.findViewById<Button>(R.id.btnSave)
+
+        // --- Date Picker ---
+        btnPickDate.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            selectedDueAt?.let { calendar.timeInMillis = it }
+
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+            val dpd = DatePickerDialog(requireContext(), { _, y, m, d ->
+                val selectedCal = Calendar.getInstance()
+                selectedCal.set(y, m, d, 0, 0, 0)
+                selectedCal.set(Calendar.MILLISECOND, 0)
+
+                selectedDueAt = selectedCal.timeInMillis
+                tvDueDate.text = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                    .format(selectedDueAt)
+            }, year, month, day)
+
+            // Disable past dates
+            dpd.datePicker.minDate = System.currentTimeMillis()
+            dpd.show()
         }
-    }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_task_form, container, false)
-    }
+        // --- Save button ---
+        btnSave.setOnClickListener {
+            val title = etTitle.text.toString().trim()
+            val priority = spinnerPriority.selectedItemPosition
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment TaskFormFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            TaskFormFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+            if (title.isEmpty()) {
+                etTitle.error = "Title required"
+                return@setOnClickListener
             }
+
+            lifecycleScope.launch {
+                // Always add new task — no editing
+                viewModel.addTask(title, priority, selectedDueAt)
+                findNavController().navigateUp()
+            }
+        }
     }
 }

@@ -21,7 +21,7 @@ data class Task(
      */
     val dueAt: Long?, // [cite: 472]
 
-    val done: Boolean = false, //
+    var done: Boolean = false, //
 
     val iconRes: Int? = null // [cite: 474]
 )

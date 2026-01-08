@@ -1,14 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".TaskFormFragment">
+    android:background="#F3EDFA">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-</FrameLayout>
+        <!-- Card Container -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="#F5F5F5"
+            android:elevation="4dp">
+
+            <!-- Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add New Task"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#212121"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Task Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Task Title"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="e.g. Finish assignment"
+                android:inputType="text"
+                android:background="@android:drawable/edit_text"
+                android:padding="10dp" />
+
+            <!-- Description -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Description"
+                android:textStyle="bold"
+                android:layout_marginTop="12dp" />
+
+            <!--            <EditText-->
+            <!--                android:id="@+id/etDescription"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:hint="Additional details (optional)"-->
+            <!--                android:minLines="3"-->
+            <!--                android:gravity="top"-->
+            <!--                android:inputType="textMultiLine"-->
+            <!--                android:background="@android:drawable/edit_text"-->
+            <!--                android:padding="10dp" />-->
+
+            <!-- Priority -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Difficulty Level"
+                android:textStyle="bold"
+                android:layout_marginTop="12dp" />
+
+            <Spinner
+                android:id="@+id/spinnerPriority"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/priority_array"
+                android:padding="10dp" />
+
+            <!-- Due Date -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Due Date"
+                android:textStyle="bold"
+                android:layout_marginTop="12dp" />
+
+            <Button
+                android:id="@+id/btnPickDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Select Due Date"
+                android:backgroundTint="#D797F7"
+                android:textColor="#000000"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/tvDueDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No date selected"
+                android:textColor="#616161"
+                android:layout_marginTop="6dp" />
+
+            <!-- Save Button -->
+            <Button
+                android:id="@+id/btnSave"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Save Task"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:backgroundTint="#D197E8"
+                android:layout_marginTop="24dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
