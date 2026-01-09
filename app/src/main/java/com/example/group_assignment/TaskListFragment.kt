@@ -1,7 +1,12 @@
 package com.example.group_assignment
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.*
+import android.widget.AdapterView
+import android.widget.EditText
+import android.widget.Spinner
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -26,7 +31,6 @@ class TaskListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true) // for menu options like settings & sort
     }
 
     override fun onCreateView(
@@ -39,52 +43,80 @@ class TaskListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // --- Initialize adapter ---
-        taskAdapter = TaskListAdapter { task, isDone ->
-            viewModel.toggleTaskDone(task, isDone)
+        val btnSettings = view.findViewById<android.widget.ImageButton>(R.id.btnSettings)
+        btnSettings.setOnClickListener {
+            findNavController().navigate(R.id.action_taskListFragment_to_settingsFragment)
         }
 
-        // --- Setup RecyclerView ---
+        binding.tabLayout.addOnTabSelectedListener(object : com.google.android.material.tabs.TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: com.google.android.material.tabs.TabLayout.Tab?) {
+                // When user clicks a tab, update the ViewModel
+                viewModel.setTab(tab?.position ?: 0)
+            }
+
+            override fun onTabUnselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
+            override fun onTabReselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
+        })
+
+        taskAdapter = TaskListAdapter(
+            onTaskChecked = { task, isDone ->
+                viewModel.toggleTaskDone(task, isDone)
+            },
+            onDeleteClick = { task ->
+                com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Delete Task")
+                    .setMessage("Are you sure you want to delete '${task.title}'?")
+                    .setNegativeButton("Cancel") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .setPositiveButton("Delete") { dialog, _ ->
+                        viewModel.deleteTask(task.id)
+                        dialog.dismiss()
+                    }
+                    .show()
+            },
+            onEditClick = { task ->
+                val bundle = Bundle().apply {
+                    putLong("taskId", task.id)
+                }
+                findNavController().navigate(R.id.taskFormFragment, bundle)
+            }
+        )
+
         binding.recycler.apply {
             adapter = taskAdapter
             layoutManager = LinearLayoutManager(requireContext())
         }
 
-        // --- Observe tasks from ViewModel ---
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.tasks.collect { taskAdapter.submitList(it) }
         }
 
-        // --- FAB to add new task ---
         binding.fabAdd.setOnClickListener {
             findNavController().navigate(R.id.taskFormFragment)
         }
-    }
 
-    // --- Menu options (settings & sort) ---
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_list, menu)
-    }
+        val etSearch = view.findViewById<EditText>(R.id.etSearch)
+        etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                viewModel.setSearchQuery(s.toString())
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_settings -> {
-                findNavController().navigate(R.id.action_taskListFragment_to_settingsFragment)
-                true
+        val spinnerSort = view.findViewById<Spinner>(R.id.spinnerSort)
+        spinnerSort.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val option = when (position) {
+                    0 -> TaskListViewModel.SortOption.DATE_NEAREST
+                    1 -> TaskListViewModel.SortOption.PRIORITY_HIGH_LOW
+                    2 -> TaskListViewModel.SortOption.PRIORITY_LOW_HIGH
+                    else -> TaskListViewModel.SortOption.DATE_NEAREST
+                }
+                viewModel.setSortOption(option)
             }
-            R.id.sort_title -> {
-                viewModel.setSortOption(TaskListViewModel.SortOption.TITLE)
-                true
-            }
-            R.id.sort_due -> {
-                viewModel.setSortOption(TaskListViewModel.SortOption.DUE_DATE)
-                true
-            }
-            R.id.sort_done -> {
-                viewModel.setSortOption(TaskListViewModel.SortOption.DONE)
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
     }
 

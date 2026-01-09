@@ -1,11 +1,17 @@
 <resources>
-    <string name="app_name">MyApp</string>
+    <string name="app_name">TaskMaster Pro</string>
     <string name="hello_blank_fragment">Hello Fragment</string>
 
-    <!-- Your array -->
     <string-array name="priority_array">
         <item>Low</item>
         <item>Medium</item>
         <item>High</item>
     </string-array>
+
+    <string-array name="sort_options">
+        <item>Date: Nearest First</item>
+        <item>Priority: High to Low</item>
+        <item>Priority: Low to High</item>
+    </string-array>
+
 </resources>

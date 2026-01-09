@@ -1,14 +1,17 @@
 package com.example.group_assignment
 
 import android.content.ContentValues
+import android.content.Context
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.example.group_assignment.databinding.FragmentSettingsBinding
 import com.example.group_assignment.viewmodel.TaskListViewModel
 import com.example.group_assignment.viewmodel.TaskListViewModelFactory
@@ -33,7 +36,15 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         _binding = FragmentSettingsBinding.bind(view)
+
+        val toolbar = view.findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        toolbar.setNavigationOnClickListener {
+            findNavController().navigateUp()
+        }
+
+        setupDarkModeSwitch()
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.tasks.collect { tasks ->
@@ -61,6 +72,32 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                     }
                 }
             }
+        }
+    }
+
+    private fun setupDarkModeSwitch() {
+        val sharedPref = requireActivity().getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
+        val isDarkMode = sharedPref.getBoolean("DARK_MODE", false)
+
+
+        binding.switchDarkMode.isChecked = isDarkMode
+
+        binding.switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                saveThemePreference(true)
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                saveThemePreference(false)
+            }
+        }
+    }
+
+    private fun saveThemePreference(isDark: Boolean) {
+        val sharedPref = requireActivity().getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putBoolean("DARK_MODE", isDark)
+            apply()
         }
     }
 

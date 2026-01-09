@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+<color name="pro_blue_dark">#0F172A</color>
+<color name="pro_gold">#C5A059</color>
+<color name="pro_gold_light">#F3E9D2</color>
+<color name="bg_screen">#F8FAFC</color>
+    <color name="divider">#E2E8F0</color>
+    <color name="bg_search">#F1F5F9</color>
+    <color name="bg_card">#FFFFFF</color>
+    <color name="bg_toolbar">#FFFFFF</color>
+    <color name="bg_input">#FFFFFF</color>
+    <color name="text_primary">#0F172A</color>
+    <color name="text_secondary">#64748B</color>
+    <color name="icon_tint">#0F172A</color>
+    <color name="status_green">#1B5E20</color>
+    <color name="status_red">#B71C1C</color>
+    <color name="status_pending">#64748B</color>
 </resources>

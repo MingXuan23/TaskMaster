@@ -1,0 +1,17 @@
+<resources>
+    <color name="pro_blue_dark">#1E293B</color>
+    <color name="pro_gold">#D4AF37</color>
+    <color name="pro_gold_light">#332D18</color>
+    <color name="bg_screen">#121212</color>
+    <color name="divider">#2C2C2C</color>
+    <color name="bg_search">#2C2C2C</color>
+    <color name="bg_card">#1E1E1E</color>
+    <color name="bg_toolbar">#1E1E1E</color>
+    <color name="bg_input">#2C2C2C</color>
+    <color name="text_primary">#E2E8F0</color>
+    <color name="text_secondary">#94A3B8</color>
+    <color name="icon_tint">#E2E8F0</color>
+    <color name="status_green">#81C784</color>
+    <color name="status_red">#EF5350</color>
+    <color name="status_pending">#94A3B8</color>
+</resources>

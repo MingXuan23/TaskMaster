@@ -9,18 +9,50 @@ import kotlinx.coroutines.launch
 
 class TaskListViewModel(private val repository: ITaskRepository) : ViewModel() {
 
-    enum class SortOption { TITLE, DUE_DATE, DONE }
-    private val _sortOption = MutableStateFlow(SortOption.TITLE)
+    enum class SortOption { DATE_NEAREST, PRIORITY_HIGH_LOW, PRIORITY_LOW_HIGH }
+    private val _sortOption = MutableStateFlow(SortOption.DATE_NEAREST)
+    private val _currentTab = MutableStateFlow(0)
+
+    private val _searchQuery = MutableStateFlow("")
 
     val tasks: StateFlow<List<Task>> =
-        repository.getTasks()
-            .combine(_sortOption) { taskList, option ->
-                when (option) {
-                    SortOption.TITLE -> taskList.sortedBy { it.title.lowercase() }
-                    SortOption.DUE_DATE -> taskList.sortedBy { it.dueAt ?: Long.MAX_VALUE }
-                    SortOption.DONE -> taskList.sortedByDescending { it.done }
+        combine(
+            repository.getTasks(),
+            _sortOption,
+            _currentTab,
+            _searchQuery
+        ) { allTasks, sort, tabIndex, query ->
+
+            // Filter by Tab
+            var filtered = if (tabIndex == 0) {
+                allTasks.filter { !it.done }
+            } else {
+                allTasks.filter { it.done }
+            }
+
+            // Filter by Search
+            if (query.isNotEmpty()) {
+                filtered = filtered.filter {
+                    it.title.contains(query, ignoreCase = true)
                 }
             }
+
+            // Sort
+            when (sort) {
+                SortOption.DATE_NEAREST -> {
+                    // Sort by date.
+                    filtered.sortedBy { it.dueAt ?: Long.MAX_VALUE }
+                }
+                SortOption.PRIORITY_HIGH_LOW -> {
+                    // High to Low
+                    filtered.sortedByDescending { it.priority }
+                }
+                SortOption.PRIORITY_LOW_HIGH -> {
+                    // Low to High
+                    filtered.sortedBy { it.priority }
+                }
+            }
+        }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
@@ -29,6 +61,14 @@ class TaskListViewModel(private val repository: ITaskRepository) : ViewModel() {
 
     fun setSortOption(option: SortOption) {
         _sortOption.value = option
+    }
+
+    fun setTab(index: Int) {
+        _currentTab.value = index
+    }
+
+    fun setSearchQuery(query: String) {
+        _searchQuery.value = query
     }
 
     fun toggleTaskDone(task: Task, isDone: Boolean) {
@@ -50,7 +90,6 @@ class TaskListViewModel(private val repository: ITaskRepository) : ViewModel() {
         }
     }
 
-    // --- NEW: get a task by ID (for edit) ---
     fun getTaskById(taskId: Long, callback: (Task?) -> Unit) {
         viewModelScope.launch {
             val task = repository.getTaskById(taskId)
@@ -58,14 +97,12 @@ class TaskListViewModel(private val repository: ITaskRepository) : ViewModel() {
         }
     }
 
-    // --- NEW: update existing task ---
     fun updateTask(taskId: Long, title: String, priority: Int, dueAt: Long?) {
         viewModelScope.launch {
             repository.updateTask(taskId, title, priority, dueAt)
         }
     }
 
-    // --- Optional: delete task ---
     fun deleteTask(taskId: Long) {
         viewModelScope.launch {
             repository.deleteTask(taskId)

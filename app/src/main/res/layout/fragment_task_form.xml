@@ -1,121 +1,156 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F3EDFA">
+    android:background="@color/bg_screen"
+    android:fitsSystemWindows="true">
 
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:background="@color/bg_toolbar"
+        app:elevation="0dp">
 
-        <!-- Card Container -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/bg_toolbar"
+            app:navigationIcon="@drawable/ic_arrow_back">
+
+            <TextView
+                android:id="@+id/tvPageTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Task Details"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-medium"/>
+        </androidx.appcompat.widget.Toolbar>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider"/>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
-            android:background="#F5F5F5"
-            android:elevation="4dp">
+            android:padding="24dp">
 
-            <!-- Title -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add New Task"
-                android:textSize="22sp"
+                android:text="Task Name"
+                android:textColor="@color/text_primary"
                 android:textStyle="bold"
-                android:textColor="#212121"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="8dp"/>
 
-            <!-- Task Title -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Task Title"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/etTitle"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="e.g. Finish assignment"
-                android:inputType="text"
-                android:background="@android:drawable/edit_text"
-                android:padding="10dp" />
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/text_primary"
+                app:boxCornerRadiusTopStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp"
+                app:boxCornerRadiusBottomEnd="8dp"
+                app:hintTextColor="@color/text_secondary"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-            <!-- Description -->
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="e.g. Finish Project Report"
+                    android:textColor="@color/text_primary"
+                    android:inputType="textCapSentences"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Description"
+                android:text="Priority Level"
+                android:textColor="@color/text_primary"
                 android:textStyle="bold"
-                android:layout_marginTop="12dp" />
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"/>
 
-            <!--            <EditText-->
-            <!--                android:id="@+id/etDescription"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:hint="Additional details (optional)"-->
-            <!--                android:minLines="3"-->
-            <!--                android:gravity="top"-->
-            <!--                android:inputType="textMultiLine"-->
-            <!--                android:background="@android:drawable/edit_text"-->
-            <!--                android:padding="10dp" />-->
-
-            <!-- Priority -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Difficulty Level"
-                android:textStyle="bold"
-                android:layout_marginTop="12dp" />
-
-            <Spinner
-                android:id="@+id/spinnerPriority"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:entries="@array/priority_array"
-                android:padding="10dp" />
+                android:layout_height="56dp"
+                android:background="@drawable/bg_search_rounded"
+                android:paddingHorizontal="12dp">
 
-            <!-- Due Date -->
+                <Spinner
+                    android:id="@+id/spinnerPriority"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:entries="@array/priority_array"
+                    android:spinnerMode="dropdown"/>
+            </FrameLayout>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Due Date"
+                android:textColor="@color/text_primary"
                 android:textStyle="bold"
-                android:layout_marginTop="12dp" />
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"/>
 
-            <Button
-                android:id="@+id/btnPickDate"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Select Due Date"
-                android:backgroundTint="#D797F7"
-                android:textColor="#000000"
-                android:textStyle="bold"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/tvDueDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="No date selected"
-                android:textColor="#616161"
-                android:layout_marginTop="6dp" />
+                <Button
+                    android:id="@+id/btnPickDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Select Date"
+                    android:textColor="@color/text_primary"
+                    android:backgroundTint="@color/bg_input"
+                    app:strokeColor="@color/divider"
+                    app:strokeWidth="1dp"
+                    app:icon="@drawable/ic_add"
+                    app:iconTint="@color/pro_gold"
+                    android:minHeight="56dp"/>
 
-            <!-- Save Button -->
+                <TextView
+                    android:id="@+id/tvDueDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No date selected"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="15sp"
+                    android:layout_marginStart="16dp"/>
+            </LinearLayout>
+
             <Button
                 android:id="@+id/btnSave"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
                 android:text="Save Task"
+                android:textColor="#0F172A"
                 android:textStyle="bold"
-                android:textColor="@android:color/black"
-                android:backgroundTint="#D197E8"
-                android:layout_marginTop="24dp" />
+                android:textSize="16sp"
+                android:backgroundTint="@color/pro_gold"
+                app:cornerRadius="12dp"
+                android:layout_marginTop="48dp"
+                android:elevation="4dp"/>
 
         </LinearLayout>
-
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

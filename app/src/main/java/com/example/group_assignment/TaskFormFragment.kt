@@ -7,6 +7,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast // Added for feedback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -25,15 +26,43 @@ class TaskFormFragment : Fragment(R.layout.fragment_task_form) {
     }
 
     private var selectedDueAt: Long? = null
+    private var taskId: Long = -1L
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 1. Bind Views
         val etTitle = view.findViewById<EditText>(R.id.etTitle)
         val spinnerPriority = view.findViewById<Spinner>(R.id.spinnerPriority)
         val btnPickDate = view.findViewById<Button>(R.id.btnPickDate)
         val tvDueDate = view.findViewById<TextView>(R.id.tvDueDate)
         val btnSave = view.findViewById<Button>(R.id.btnSave)
+
+        val toolbar = view.findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
+        toolbar.setNavigationOnClickListener {
+            findNavController().navigateUp()
+        }
+
+        // 2. Dynamic UI
+        taskId = arguments?.getLong("taskId", -1L) ?: -1L
+
+        if (taskId != -1L) {
+            btnSave.text = "Update Task"
+
+            // Fetch task details using the method we added to ViewModel
+            viewModel.getTaskById(taskId) { task ->
+                if (task != null) {
+                    etTitle.setText(task.title)
+                    spinnerPriority.setSelection(task.priority)
+
+                    // Restore date if it exists
+                    task.dueAt?.let {
+                        selectedDueAt = it
+                        tvDueDate.text = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(it)
+                    }
+                }
+            }
+        }
 
         // --- Date Picker ---
         btnPickDate.setOnClickListener {
@@ -54,12 +83,11 @@ class TaskFormFragment : Fragment(R.layout.fragment_task_form) {
                     .format(selectedDueAt)
             }, year, month, day)
 
-            // Disable past dates
             dpd.datePicker.minDate = System.currentTimeMillis()
             dpd.show()
         }
 
-        // --- Save button ---
+        // --- Save / Update ---
         btnSave.setOnClickListener {
             val title = etTitle.text.toString().trim()
             val priority = spinnerPriority.selectedItemPosition
@@ -69,11 +97,17 @@ class TaskFormFragment : Fragment(R.layout.fragment_task_form) {
                 return@setOnClickListener
             }
 
-            lifecycleScope.launch {
-                // Always add new task — no editing
+            if (taskId == -1L) {
+                // Mode: Create New
                 viewModel.addTask(title, priority, selectedDueAt)
-                findNavController().navigateUp()
+                Toast.makeText(context, "Task Created", Toast.LENGTH_SHORT).show()
+            } else {
+                // Mode: Update Existing
+                viewModel.updateTask(taskId, title, priority, selectedDueAt)
+                Toast.makeText(context, "Task Updated", Toast.LENGTH_SHORT).show()
             }
+
+            findNavController().navigateUp()
         }
     }
 }
